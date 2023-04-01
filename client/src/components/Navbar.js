@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Auth from '../utils/auth'
 import { Button } from '@chakra-ui/react'
@@ -7,7 +7,23 @@ const Navbar = () => {
     const loggedin = Auth.loggedIn()
     const userId = localStorage.getItem('user_id')
     const isAdmin = localStorage.getItem('is_admin')
+    const [showInstallButton, setShowInstallButton] = useState(false)
+    const [deferredPrompt, setDeferredPrompt] = useState(null)
 
+    const handleInstallClick = () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt()
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User installed the app')
+                } else {
+                    console.log('User did not install the app')
+                }
+                setDeferredPrompt(null)
+                setShowInstallButton(false)
+            })
+        }
+    }
     return (
         <nav>
             <ul>
@@ -29,8 +45,7 @@ const Navbar = () => {
 
                     </>)
                 }
-                <Button style={{ width: '100px', position: 'absolute', right: '10px' }} variant='outline' colorScheme='green'>Install</Button>
-            </ul>
+                {showInstallButton && <Button style={{ width: '100px', position: 'absolute', right: '10px' }} variant='outline' colorScheme='green' onClick={handleInstallClick}>Install</Button>}            </ul>
         </nav>
     )
 }
